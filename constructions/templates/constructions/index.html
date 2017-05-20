@@ -1,0 +1,27 @@
+{% extends 'constructions/base.html' %}
+
+{% block content %}
+  <table class="table table-bordered table-condensed table-hover">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Sentence</th>      
+      </tr>
+    </thead>
+    <tbody>
+      {% for sentence in sentences %}
+        <tr>
+          <td>{{ sentence.treebank_id }}</td>
+          <td><a href='{{sentence.get_absolute_url}}'> {{ sentence.plain_form }} </a></td>
+          
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  {% if is_paginated %}
+    {% include 'constructions/paginator.html' %}
+  {% endif %}
+  
+
+{% endblock %}

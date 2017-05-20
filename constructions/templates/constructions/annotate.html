@@ -1,0 +1,27 @@
+{% extends 'constructions/base.html' %}
+
+{% block content %}
+  <div class="page-header">
+  <!-- <h2> {{sentence.plain_form}} </h2> -->
+    <div class="panel panel-default">
+      <div class="panel-heading"> Annotation View : Sentence ID - {{sentence.treebank_id}}</div>
+        <div class="panel-body">
+          {% for index, word in words %}
+            <button class="btn btn-default" style="margin-top:1%"> {{ word }} </button>
+          {% endfor %}
+        </div>
+    </div>
+  </div>  
+  
+  <div class="row">
+    <div class="col-md-6">
+      <div class="panel panel-default">
+      <div class="panel-heading"> SSF View </div>
+        <div class="panel-body">
+          <pre> {{sentence.treebank_form | linebreaks}} </pre>
+        </div>
+    </div>
+    </div>
+  </div>
+
+{% endblock %}
