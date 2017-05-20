@@ -9,5 +9,6 @@ def insert(ssf_file):
 		s.treebank_id = sentence.id		
 		s.plain_form = sentence.d(SSFSentence.display_mode_pos, ignore_chunks = True)
 		s.treebank_form = sentence.d(SSFSentence.display_mode_full)
+		#print s.plain_form
 		s.save()
 	print "Inserted ", index, " Sentences"

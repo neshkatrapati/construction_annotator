@@ -55,7 +55,7 @@ class SSFPropertyOverflow(Exception):
         return "{0} Property Not Found in the Line".format(self.property)
 
 
-sep = re.compile('\s\s+')
+sep = re.compile('\t+')
 
 class SSFLine(object):
     """ Represents Each Line of an SSF Sentence """
@@ -318,7 +318,7 @@ class SSFSentence(object):
 
 
 
-    def d(self,mode = display_mode_full,word_mode = word_mode_wordform, ignore_pos = False):
+    def d(self,mode = display_mode_full,word_mode = word_mode_wordform, ignore_chunks = False, ignore_pos = False):
         if mode == SSFSentence.display_mode_full:
             r = "<Sentence id=\"{id}\">\n".format(id = self.id)
             r += "\n".join([line.d(ignore_pos = ignore_pos) for line in self.lines()])
@@ -327,20 +327,23 @@ class SSFSentence(object):
             r += "\n</Sentence>"
             return r
         elif mode in [SSFSentence.display_mode_flat,SSFSentence.display_mode_pos]:
+            r = ""
             for line in self.lines():
-                if line.word in SSFSentence.chunk_markers:
-                    print line.word,
+                #print line.line
+                
+                if (line.word.strip() in SSFSentence.chunk_markers):
+                    pass
                 else:
                     extra = ""
                     if mode == SSFSentence.display_mode_pos:
                         extra = "/{pos}".format(pos = line.tag)
 
                     if word_mode == SSFSentence.word_mode_wordform:
-                        print line.word+extra,
-                    else:
-                        print line.morph.root+extra,
+                        r += line.word+extra + " "
+                    else: 
+                        r += line.morph.root+extra + " "
 
-            print ""
+            return r
 
 
 class SSFUtils(object):

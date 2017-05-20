@@ -1,4 +1,6 @@
 {% extends 'constructions/base.html' %}
+{% load static %}
+{% load staticfiles %}
 
 {% block content %}
   <div class="page-header">
@@ -19,6 +21,14 @@
       <div class="panel-heading"> SSF View </div>
         <div class="panel-body">
           <pre> {{sentence.treebank_form | linebreaks}} </pre>
+        </div>
+    </div>
+    </div>
+    <div class="col-md-6">
+      <div class="panel panel-default">
+      <div class="panel-heading"> Dependency Graph </div>
+        <div class="panel-body">
+          <img src='{% static "constructions/test.png" %}' />
         </div>
     </div>
     </div>

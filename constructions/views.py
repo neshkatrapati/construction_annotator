@@ -5,7 +5,7 @@ from django.shortcuts import render
 from django.views.generic import ListView
 # Create your views here.
 from .models import *
-from .helpers import split_sentence
+from .helpers import split_sentence, get_graph
 
 
 
@@ -20,7 +20,9 @@ class SentenceView(ListView):
 def annotate(request, id):
 	sentence = Sentence.objects.get(id = id)
 	words = split_sentence(sentence)
+	png_path = get_graph(sentence.treebank_form)
 	return render(request, 
 		'constructions/annotate.html', 
 		{'sentence': sentence,
-		 'words':words})
+		 'words':words,
+		 'image':png_path})
