@@ -125,48 +125,24 @@
     </div>
     </div>
   </div>  
-  {% csrf_token %}  
+    
 {% endblock %}
 
 {% block endjs %}
-  
 
   constructions = {}
   participants = {}
 
-  function csrfSafeMethod(method) {
-    // these HTTP methods do not require CSRF protection
-    return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
-  }
-
-  $.ajaxSetup({
-    beforeSend: function(xhr, settings) {
-        if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
-            var csrftoken = jQuery("[name=csrfmiddlewaretoken]").val();
-            xhr.setRequestHeader("X-CSRFToken", csrftoken);
-        }
-    }
-  });
 
   $('#sbchanges').click(function() {
     if (confirm("Are you sure ? ")) {
-      if (Object.keys(constructions).length > 0) {
+      alert("ead");
+      /* alert('Going in');
+      if ((Object.keys(constructions)).length > 0) {
         if (areFilled()) {
 
-          if(arePartsFilled()) {
 
-            // Sending here.
-            data = JSON.stringify({constructions : constructions, 
-              participants : participants});
-            console.log(data);
-            $.post("/app/ca/",
-              {
-                data : data,
-                sentence : '{{sentence.id}}',
-              },
-              function(data, status){
-                alert("Data: " + data + "\nStatus: " + status);
-            });
+          if(arePartsFilled()) {
 
           } else {
             alert('Not all Constructions Participants are complete. Be sure to end construction participants if you have started them');
@@ -176,11 +152,13 @@
         } else {
           alert('Not all Constructions are complete. Be sure to end constructions if you have started them');
         }
-      } else {
+     } else {
         alert('There are no constructions defined.');
-      }
+      } */
+    } else {
+      alert("OOps");
     }
-  })
+  });
 
 
 
@@ -195,11 +173,8 @@
 
      button = $('[data-id='+constructions[cky]['start']+']')[0];
      constructions[cky]['source_word']  = $('[data-id='+constructions[cky]['start']+']')[0].innerHTML;
-     constructions[cky]['model_id'] = "{{construction.id}}";
 
-
-     c  = create_construction_marker(cky, '{{construction.construction.color}}', "{{construction.construction.name}}", '{', button);
-
+      c  = create_construction_marker(cky, '{{construction.construction.color}}', "{{construction.construction.name}}", '{', button);
       console.log(button);
       button = $('[data-id='+constructions[cky]['stop']+']')[0];
       c2 = create_construction_marker(cky, '{{construction.construction.color}}', "{{construction.construction.name}}", '}', button);
@@ -220,13 +195,12 @@
 
         button = $('[data-id='+participants[pky]['start']+']')[0];
         participants[pky]['source_word']  = button.innerHTML;
-        participants[pky]['model_id']  = "{{participant.id}}";
         c_ID = cky+'_'+participants[pky].id+'_'+participants[pky].start;
         c = create_participant_marker(cky, participants[pky].id, c_ID, participants[pky].color, participants[pky].name, '[', button);
         //populate_end_p('');
         button = $('[data-id='+participants[pky]['stop']+']')[0];
         sw  = button.innerHTML;        
-        c_ID = cky+'_'+participants[pky].id+'_'+participants[pky].stop;
+        c_ID = cky+'_'+participants[pky].pid+'_'+participants[pky].stop;
         c = create_participant_marker(cky, participants[pky].id, c_ID, participants[pky].color, participants[pky].name, ']', button);
         populate_end_p('');
    
@@ -581,7 +555,7 @@ $('#end-p-select').change(function(event) {
   ckey  = participants[pkey].construction;
   color  = sel.attributes['data-color'].value;
   content = participants[pkey].name;
-  c_ID = 'cpart_'+ckey+'_'+pid+'_'+parent;
+  c_ID = 'cpart_'+cid+'_'+pid+'_'+parent;
 
 
   c = create_participant_marker(ckey, pid, pkey, color, content, ']', button);
@@ -602,7 +576,6 @@ $('#start-p-select').change(function(event) {
   pid  = sel.value;
   content = sel.innerHTML;
   c_ID = 'cpart_'+ckey+'_'+pid+'_'+parent;
-  cid  = ckey+'_'+pid+'_'+parent;
   c_IDS = 'cpart_'+ckey+'_'+pid+'_'+parent+'_'+s;
   if ($('#'+c_IDS).length > 0) {
     cx = constructions[cid];
@@ -615,7 +588,7 @@ $('#start-p-select').change(function(event) {
     alert("You already started a " + content + " Participant for " + constructions[cid].name + " Construction @ " + button.innerHTML + " which starts From " + cxinit + " To " + cxstop);
   }
   else {
-    participants[cid] = {construction : ckey, 
+    participants[c_ID] = {construction : ckey, 
                         color : color,                         
                         id : pid, 
                         start : parent,

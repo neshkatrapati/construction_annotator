@@ -3,6 +3,7 @@ from __future__ import unicode_literals
 from colorfield.fields import ColorField
 from django.db import models
 from django.urls import reverse
+from .helpers import *
 # Create your models here.
 
 class ConstructionParticipantType(models.Model):
@@ -11,6 +12,10 @@ class ConstructionParticipantType(models.Model):
 	color = ColorField(default = '#FF0000')
 	def __str__(self):
 		return self.name
+
+	def get_absolute_url(self):
+		return '/app/cxp/'+str(self.pk)
+
 
 class ConstructionCategory(models.Model):
 	name = models.CharField(max_length=2000)
@@ -21,6 +26,9 @@ class ConstructionCategory(models.Model):
 
 	def __str__(self):
 		return self.name
+
+	def get_absolute_url(self):
+		return '/app/cx/'+str(self.pk)
 
 class Sentence(models.Model):
 	treebank_id = models.IntegerField()
@@ -33,6 +41,8 @@ class Sentence(models.Model):
 	def __unicode__(self):
 		return unicode(self.plain_form)
 
+	def as_list(self):
+		return split_sentence(self)
 
 	def get_absolute_url(self):
 		return '/app/s/' + str(self.id)
@@ -44,6 +54,8 @@ class ConstructionParticipant(models.Model):
 	span_end = models.IntegerField()
 
 
+
+	
 	def __unicode__(self):
 		return unicode(self.type.name)
 
@@ -52,7 +64,10 @@ class Construction(models.Model):
 	construction = models.ForeignKey(ConstructionCategory)
 	span_start = models.IntegerField()
 	span_end = models.IntegerField()
-	participants = models.ManyToManyField(ConstructionParticipant)
+	participants = models.ManyToManyField(ConstructionParticipant, null=True, blank=True)
 
 	def __unicode__(self):
-		return unicode(self.construction.name)
+		if hasattr(self, 'construction'):
+			return unicode(self.construction.name)
+		else:
+			return u'Dummy'

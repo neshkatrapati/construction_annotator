@@ -1,0 +1,27 @@
+{% load mathfilters %}
+{% load bootstrap3 %}
+{% load staticfiles %}
+
+<html>
+
+ <head>
+    <!--Import materialize.css-->
+    	{% block page_head %}
+        <link type="text/css" rel="stylesheet" href="{% static 'materialize/bin/materialize.css' %}"  media="screen,projection"/>
+
+	    {% bootstrap_css %}
+		{% bootstrap_javascript %}
+		{% endblock %}
+    
+  </head>
+
+<body>
+    <div class="container">
+      <div class="row">
+
+		{% block content %}
+		{% endblock %}
+	  </div>
+	</div>
+</body>
+

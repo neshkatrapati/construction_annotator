@@ -1,0 +1,30 @@
+{% extends 'constructions/base.html' %}
+
+{% block content %}
+  <table class="table table-bordered table-condensed table-hover">
+    <thead>
+      <tr>
+        <th>Construction Participant</th>
+        <th>Occurs in </th>      
+      </tr>
+    </thead>
+    <tbody>
+      {% for participant in participants %}
+        <tr>
+          <td style="padding:1%"> <a href="{{participant.get_absolute_url}}"> <span class='' style='background-color:{{participant.color}};font-size:100%;padding:1%'>{{ participant.name }}</span></a></td>
+          <td style="padding:1%">
+          {% for construction in participant.constructioncategory_set.all %}
+            <span style='background-color:{{construction.color}};font-size:100%;padding:1%;margin:1%'> <a href='{{construction.get_absolute_url}}'> {{ construction.name }} </a></span>
+          {% endfor %}
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  {% if is_paginated %}
+    {% include 'constructions/paginator.html' %}
+  {% endif %}
+  
+
+{% endblock %}
