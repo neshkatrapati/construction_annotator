@@ -7,7 +7,7 @@ import os
 from django.conf import settings
 
 def split_sentence(sentence):
-	s = sentence.plain_form.split(' ')
+	s = sentence.plain_form.split(' ')	
 	return [(index, w) for index, w in enumerate(s)]
 
 
@@ -18,6 +18,7 @@ def extract_from_sentence(sentence):
   drel_map = {} # Holds 'modified_name' -> ('relation' -> 'modifier_name') eg VGF1 -> (k1 -> NP2)
   names = {} # Holds 'name' (in SSF) -> token eg NP -> rAm
   for index, chunk in enumerate(sentence.chunks()): # Get Chunks from sentences
+
     drel_comps = None
     if chunk.name == None:
       chunk.name = chunk.pos + "0"
@@ -26,12 +27,13 @@ def extract_from_sentence(sentence):
       chunk.head = chunk.head.strip('" ')
 
     names[chunk.name] = chunk.d() # name -> token (~chunk.head)
-    if chunk.drel:  # If chunk has drel info
+    if chunk.drel:  # If chunk has drel info      
       drel_comps = chunk.drel.split(":") # Drel info in SSF is in the form 'relation:modified_name'
       if len(drel_comps) == 2: # Validate
         modified, relation = drel_comps[1], drel_comps[0]
         if modified not in drel_map: # If there is no entry in Drel_Map for the modified, create it
           drel_map[modified] = {}
+
         drel_map[modified][relation] = chunk.name # Link modified -> (rel -> modifier)
   return drel_map, names
 
@@ -39,12 +41,13 @@ def extract_from_sentence(sentence):
 
 
 def print_graph(ssf_string):
+  #print ssf_string
   ssf = common.SSF(ssf_string)
   ssf._sentences()
   for sentence in ssf:
     
     drel_map, names = extract_from_sentence(sentence)
-    
+    #print drel_map, names    
     g = "digraph {\n"
 
     for node in drel_map:

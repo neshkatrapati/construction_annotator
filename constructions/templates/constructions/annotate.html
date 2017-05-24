@@ -3,13 +3,105 @@
 {% load staticfiles %}
 
 {% block content %}
-  <div class="page-header">
-  <!-- <h2> {{sentence.plain_form}} </h2> -->
-    <div class="panel panel-default">
-      <div class="panel-heading"> Annotation View : Sentence ID - {{sentence.treebank_id}}</div>
-        <div class="panel-body">
+  {{conform.media.css}}
+  {{conform.media.js}}
+
+  
+
+  <div class="page-header" id='annotate_view'>
+  
+    <div class="panel panel-primary" >
+      <div class="panel-heading" style='padding:5px 10px'>
+       <div class='row'>
+        <div class='col-md-10'> Annotation View : Sentence ID - {{sentence.treebank_id}} </div>
+        <div class='col-md-2'> <button type='button' id='sbchanges' class='btn btn-info' style='float:right'> Submit Changes </button> </div>
+        </div>
+      </div>
+        <div  class="panel-body" id='wordpanel'>
+
+
+
+          <div id='edit' style='display:none'>
+            <form class='form-inline'> 
+              <table class='table table-bordered table-condensed'>
+                <tr><td colspan="3">Editing </td> <td colspan="3"> <span id='edit-c-word'></span></td></tr>
+                <tr>
+                  <td colspan="3">Start Construction</td>
+                  <td colspan="3"><select id='edit-c-sel' class='btn btn-default' style="width:90%">
+                    
+                  </select></td>
+                </tr>
+                <tr style="display:none" id='end-c'>
+                  <td colspan="3">End Construction</td>
+                  <td colspan="3"><select id='edit-c-end' class='btn btn-default' style="width:90%">
+                    
+                  </select></td>
+                </tr>
+
+               <tr style="display:none; text-align:center" id='start-p'>
+                  <td>Select Construction</td>
+                  <td ><select id='start-p-select-c' class='btn btn-default' style="width:100%">
+                    
+                  </select></td><td>Start Constructon Participant</td>
+                  <td ><select id='start-p-select' class='btn btn-default' style="width:100%">
+                    
+                  </select></td><td>End Constructon Participant</td>
+                  <td ><select id='end-p-select' class='btn btn-default' style="width:100%">
+                    
+                  </select></td>
+                </tr>
+          
+
+              </table>
+            </form>
+          </div>
+
+
+
+          
+
+
+          <div id='edit-markers' style='display:none'>
+            
+              <table class='table table-bordered table-condensed'>
+                <tr>
+                  <td>Construction :</td>
+                  <td id='em-cname'></td>
+                  <td>From</td>
+                  <td id='em-span-init'></td>
+                  <td>To</td>
+                  <td id='em-span-end'></td>
+                  <td id='em-delete'></td>
+                </tr>
+              </table>
+            
+          </div>
+
+
+
+          <div id='edit-pmarkers' style='display:none'>
+            
+              <table class='table table-bordered table-condensed'>
+                <tr>
+                  <td>Construction</td>
+                  <td id='ep-cname'></td>
+                  <td>Construction Participant:</td>
+                  <td id='ep-pname'></td>
+                  <td>From</td>
+                  <td id='ep-span-init'></td>
+                  <td>To</td>
+                  <td id='ep-span-end'></td>
+                  <td id='ep-delete'></td>
+                </tr>
+              </table>
+            
+          </div>
+
+
+
+
           {% for index, word in words %}
-            <button class="btn btn-default" style="margin-top:1%"> {{ word }} </button>
+            <button type='button' class="btn btn-default wordbutton" style="margin-top:1%"  data-id={{index}} data-sid={{sentence.id}}> {{ word }} </button>
           {% endfor %}
         </div>
     </div>
@@ -17,7 +109,7 @@
   
   <div class="row">
     <div class="col-md-6">
-      <div class="panel panel-default">
+      <div class="panel panel-primary">
       <div class="panel-heading"> SSF View </div>
         <div class="panel-body">
           <pre> {{sentence.treebank_form | linebreaks}} </pre>
@@ -25,13 +117,535 @@
     </div>
     </div>
     <div class="col-md-6">
-      <div class="panel panel-default">
+      <div class="panel panel-primary">
       <div class="panel-heading"> Dependency Graph </div>
         <div class="panel-body">
-          <img src='{% static "constructions/test.png" %}' />
+          <img src='{% static "constructions/test.png" %}' style="max-width:100%" />
         </div>
     </div>
     </div>
-  </div>
+  </div>  
+    
+{% endblock %}
+
+{% block endjs %}
+
+  constructions = {}
+  participants = {}
+
+
+
+
+  load_existing = function() {
+  {% for construction in constructions %}
+      cky = "{{ construction.construction.id }}" + "_" + "{{construction.span_start}}";
+      constructions[cky] = {start : "{{construction.span_start}}",
+             stop  : "{{construction.span_end}}",
+             color : "{{construction.construction.color}}",
+             name : "{{construction.construction.name}}"}
+
+     button = $('[data-id='+constructions[cky]['start']+']')[0];
+     constructions[cky]['source_word']  = $('[data-id='+constructions[cky]['start']+']')[0].innerHTML;
+
+      c  = create_construction_marker(cky, '{{construction.construction.color}}', "{{construction.construction.name}}", '{', button);
+      console.log(button);
+      button = $('[data-id='+constructions[cky]['stop']+']')[0];
+      c2 = create_construction_marker(cky, '{{construction.construction.color}}', "{{construction.construction.name}}", '}', button);
+
+
+      {% for participant in construction.participants.all %}
+      
+        pky = cky + '_' + '{{ participant.type.id }}' + '_' + '{{ participant.span_start }}';
+        
+        
+        participants[pky] = { construction : cky,
+                              color : "{{participant.type.color}}",
+                              id : "{{participant.type.id}}",
+                              start : "{{participant.span_start}}",
+                              stop : "{{participant.span_end}}",
+                              name : "{{participant.type.name}}",
+                              source_word : "", }
+
+        button = $('[data-id='+participants[pky]['start']+']')[0];
+        participants[pky]['source_word']  = button.innerHTML;
+        c_ID = cky+'_'+participants[pky].id+'_'+participants[pky].start;
+        c = create_participant_marker(cky, participants[pky].id, c_ID, participants[pky].color, participants[pky].name, '[', button);
+        //populate_end_p('');
+        button = $('[data-id='+participants[pky]['stop']+']')[0];
+        sw  = button.innerHTML;        
+        c_ID = cky+'_'+participants[pky].pid+'_'+participants[pky].stop;
+        c = create_participant_marker(cky, participants[pky].id, c_ID, participants[pky].color, participants[pky].name, ']', button);
+        populate_end_p('');
+   
+
+
+      {% endfor %}
+
+    
+   {% endfor %} 
+
+
+
+
+      if (areFilled()) {
+        $('#end-c')[0].style.display = 'none';
+      } else {
+        populate_end('');
+      }
+    
+      //populate_end(button);
+      //constructions[{{ construction.construction }}    
+   
+ }
+
+
+
+
+
+  function insertAfter(newElement,targetElement) {
+    // target is what you want it to go after. Look for this elements parent.
+    var parent = targetElement.parentNode;
+
+    // if the parents lastchild is the targetElement...
+    if (parent.lastChild == targetElement) {
+        // add the newElement after the target element.
+        parent.appendChild(newElement);
+    } else {
+        // else the target has siblings, insert the new element between the target and it's next sibling.
+        parent.insertBefore(newElement, targetElement.nextSibling);
+    }
+  }
+
+  areFilled = function() {
+    var fill = true;
+    for (var ckey in constructions) {
+      if (constructions[ckey].stop == null){
+        return false;
+      }
+    }
+    return fill;
+  }
+
+  arePartsFilled = function() {
+    var fill = true;
+    for (var pkey in participants) {
+      if (participants[pkey].stop == null){
+        return false;
+      }
+    }
+    return fill;
+  }
+
+  $('#edit-c-end').change(function(result) {
+    sel = result.target.selectedOptions[0];
+    ckey = sel.attributes['value'].value;
+    color = sel.attributes['data-color'].value;
+    current_index = $('#edit')[0].attributes['parent-id'].value;
+    constructions[ckey].stop = current_index;
+    construction_name = constructions[ckey].name
+    button = $('[data-id='+current_index+']')[0];
+    c = create_construction_marker(ckey, color, construction_name, '}', button);
+    
+    
+    if (areFilled()) {
+      $('#end-c')[0].style.display = 'none';
+    } else {
+      populate_end('');
+    }
+
+  });
+
+
+  populate_end = function(source) {
+    console.log(constructions.length);
+    $('#end-c')[0].style.display = "table-row";
+    $('#edit-c-end')[0].innerHTML = "<option value='None'>--Select--</option>";
+
+    for (var ckey in constructions) {
+      construction = constructions[ckey];
+      if (construction.stop == null){
+          $('#edit-c-end').append("<option value='"+ckey+"' data-color='"+construction.color+"'>"+construction.name+" - "+construction.source_word+"</option>");
+      }
+      
+    }
+
+  }
+
+  populate_end_p = function(source) {
+    $('#end-p-select')[0].innerHTML = "<option value='None'>--Select--</option>";
+
+    for (var pkey in participants) {
+      participant = participants[pkey];
+      if (participant.stop == null){
+          $('#end-p-select').append("<option value='"+pkey+"' data-color='"+participant.color+"'>"+participant.name+" - "+participant.source_word+"</option>");
+      }
+      
+    }
+
+  }
+
+
+  populate_end = function(source) {
+    console.log(constructions.length);
+    $('#end-c')[0].style.display = "table-row";
+    $('#edit-c-end')[0].innerHTML = "<option value='None'>--Select--</option>";
+
+    for (var ckey in constructions) {
+      construction = constructions[ckey];
+      if (construction.stop == null){
+          $('#edit-c-end').append("<option value='"+ckey+"' data-color='"+construction.color+"'>"+construction.name+" - "+construction.source_word+"</option>");
+      }
+      
+    }
+
+  }
+
+  on_marker_click = function(result){
+      $('#edit')[0].style.display = 'none';
+      $('#edit-pmarkers')[0].style.display = 'none';            
+      e = $('#edit-markers')[0];
+      e.style.display = 'block';
+      console.log($(this)[0]);
+      id = $(this)[0].attributes['id'].value;
+      marker = $(this)[0].attributes['data-marker'].value;
+      ckey = $(this)[0].attributes['data-ckey'].value;
+      e.setAttribute('data-ckey', ckey);
+      $('#em-cname')[0].innerHTML = constructions[ckey].name;
+      init = $('[data-id='+constructions[ckey].start+']')[0].innerHTML;
+      if (constructions[ckey].stop != null){
+        stop = $('[data-id='+constructions[ckey].stop+']')[0].innerHTML;
+      } else {
+        stop = '-';
+      }
+      $('#em-span-init')[0].innerHTML = "<h4> <span style='font-size:100%' class='label label-warning'>" + init + "</span></h4>";
+      $('#em-span-end')[0].innerHTML = "<h4> <span style='font-size:100%' class='label label-warning'>" + stop + "</span></h4>";
+      b = document.createElement('button');
+      b.setAttribute('class', 'btn btn-danger');
+      b.innerHTML = 'Remove';
+      b.setAttribute('style', 'margin-top: 1%;');
+      $(b).click(function(res) {
+        
+        if(confirm('Are you sure ?')) {
+            $('#'+id).remove();       
+            if (marker == '}') {
+              constructions[ckey].stop = null; 
+              if (areFilled()) {
+                $('#end-c')[0].style.display = 'none';
+              } else {
+                populate_end('');
+              }
+            }
+            else if (marker == '{') {
+              
+              if (constructions[ckey].stop != null) {
+                $('#'+id.substr(0,id.length - 1)+'E').remove();
+              }
+              delete constructions[ckey];
+              if (areFilled()) {
+                $('#end-c')[0].style.display = 'none';
+              } else {
+                populate_end('');
+              }
+            }
+            removeParticipants(ckey);
+          }
+            $('#edit-markers')[0].style.display = 'none';            
+            $('#edit-pmarkers')[0].style.display = 'none';            
+            return false;
+        });
+        $('#em-delete')[0].innerHTML = "";
+        $('#em-delete')[0].appendChild(b);
+      
+    }
+    
+
+  removeParticipants = function(ckey) {
+    for(var pkey in participants) {
+      if (participants[pkey].construction == ckey) {
+          pid = participants[pkey].id;
+          parent = participants[pkey].start;
+          c_ID = 'cpart_'+ckey+'_'+pid+'_'+parent;
+          startB = '#'+c_ID+'_O';
+          $(startB).remove();
+          if (participants[pkey].stop != null) {
+            endB = '#'+c_ID+'_E';
+            $(endB).remove();
+          }
+      }
+
+    }
+    populate_end_p('');
+  }
+
+  create_construction_marker = function(cid, color,content,marker,button) {
+    c = document.createElement('button');
+    if (marker == '{') { s = 'O';}
+    else if (marker == '}') { s = 'E';}
+    c_ID = '#con_'+cid+'_'+s;
+    c.setAttribute('id','con_'+cid+'_'+s);
+    c.setAttribute('data-ckey', cid);
+    c.setAttribute('data-marker', marker);
+    c.setAttribute('class', 'btn btn-default markerbutton');
+    c.setAttribute('style', 'margin-top: 1%;background-color:'+color+';');
+    if (marker == '{') {
+      c.innerHTML = marker + "<sub>"+content+"</sub>";
+
+      $('#wordpanel')[0].insertBefore(c, button);
+    } else {
+      c.innerHTML = "<sub>"+content+"</sub>"+marker;
+      insertAfter(c, button);
+    }
+
+    $(c_ID).click(on_marker_click);
+    return c
+  }                        
+
+
+  $('#edit-c-sel').change(function(result) {
+
+    sel = result.target.selectedOptions[0];
+    button = $('[data-id='+sel.attributes['data-source'].value+']')[0];
+    color = sel.attributes['data-color'].value;
+    cid = sel.value + '_' + sel.attributes['data-source'].value;
+    constructions[cid] = {start : sel.attributes['data-source'].value, stop : null, color : color, name : sel.innerHTML, source_word : button.innerHTML}
+
+    c  = create_construction_marker(cid, color, sel.innerHTML, '{', button);
+    console.log(button);
+    
+    populate_end(button);
+  });
+
+isBetween = function(index) {
+  betweens = []
+  for (var ckey in constructions) {
+    if (index >= constructions[ckey].start || index <= constructions[ckey.stop]) {
+      betweens.push(ckey);
+    }
+  }
+  return betweens;
+}
+
+
+on_marker_click_p = function(result){
+      $('#edit')[0].style.display = 'none';
+      $('#edit-markers')[0].style.display = 'none'; 
+      e = $('#edit-pmarkers')[0];
+      e.style.display = 'block';      
+      id = $(this)[0].attributes['id'].value;
+      marker = $(this)[0].attributes['data-marker'].value;
+      pkey = $(this)[0].attributes['data-pkey'].value;
+      e.setAttribute('data-pkey', pkey);
+      cx = constructions[participants[pkey].construction];
+      cxinit = $('[data-id='+cx.start+']')[0].innerHTML;
+      if (cx.stop != null){
+        cxstop = $('[data-id='+cx.stop+']')[0].innerHTML;
+      } else {
+        cxstop = '-';
+      }
+      $('#ep-cname')[0].innerHTML = cx.name +  ' @ ' + cxinit + ' - ' + cxstop ;
+      $('#ep-pname')[0].innerHTML = participants[pkey].name;
+      init = $('[data-id='+participants[pkey].start+']')[0].innerHTML;
+      if (participants[pkey].stop != null){
+        stop = $('[data-id='+participants[pkey].stop+']')[0].innerHTML;
+      } else {
+        stop = '-';
+      }
+      $('#ep-span-init')[0].innerHTML = "<h4> <span style='font-size:100%' class='label label-warning'>" + init + "</span></h4>";
+      $('#ep-span-end')[0].innerHTML = "<h4> <span style='font-size:100%' class='label label-warning'>" + stop + "</span></h4>";
+      b = document.createElement('button');
+      b.setAttribute('class', 'btn btn-danger');
+      b.innerHTML = 'Remove';
+      b.setAttribute('style', 'margin-top: 1%;');
+      $(b).click(function(res) {
+
+        if(confirm('Are you sure ?')) {
+            $('#'+id).remove();       
+            if (marker == ']') {
+              participants[pkey].stop = null; 
+              if (arePartsFilled()) {
+                $('#end-p-select')[0].innerHTML = '';
+              } else {
+                populate_end_p('');
+              }
+            }
+            else if (marker == '[') {
+              
+              if (participants[pkey].stop != null) {
+                $('#'+id.substr(0,id.length - 3)+participants[pkey].stop+'_E').remove();
+              }
+              delete participants[pkey];
+              if (arePartsFilled()) {
+                $('#end-p-select')[0].innerHTML = '';
+              } else {
+                populate_end_p('');
+              }
+            }
+          
+          }
+            $('#edit-pmarkers')[0].style.display = 'none';            
+            return false;
+        });
+        $('#ep-delete')[0].innerHTML = "";
+        $('#ep-delete')[0].appendChild(b);
+      
+    }
+    
+
+
+
+create_participant_marker = function(cid, pid, pkey, color,content,marker,button) {
+    c = document.createElement('button');    
+    bid = button.attributes['data-id'].value;
+    if (marker == '[') { s = 'O';}
+    else if (marker == ']') { s = 'E';}
+    c_ID = 'cpart_'+cid+'_'+pid+'_'+bid+'_'+s;
+    console.log(c_ID);
+    //pkey = 'cpart_'+cid+'_'+pid+'_'+parent;
+    c.setAttribute('id',c_ID);
+    c.setAttribute('data-pkey', pkey);
+    c.setAttribute('data-marker', marker);
+    c.setAttribute('class', 'btn btn-default markerbutton');
+    c.setAttribute('style', 'margin-top: 1%;background-color:'+color+';');
+    if (marker == '[') {
+      c.innerHTML = marker + "<sub>"+content+"</sub>";
+      $('#wordpanel')[0].insertBefore(c, button);
+    } else {
+      c.innerHTML = "<sub>"+content+"</sub>"+marker;
+      insertAfter(c, button);
+    }
+
+    $('#'+c_ID).click(on_marker_click_p);
+    return c
+  }
+
+
+$('#end-p-select').change(function(event) {
+  sel = event.target.selectedOptions[0];
+  parent = $('#edit')[0].attributes['parent-id'].value;
+  button = $('[data-id='+parent+']')[0];
+  pkey = sel.value;
+  pid = participants[pkey].id;
+  ckey  = participants[pkey].construction;
+  color  = sel.attributes['data-color'].value;
+  content = participants[pkey].name;
+  c_ID = 'cpart_'+cid+'_'+pid+'_'+parent;
+
+
+  c = create_participant_marker(ckey, pid, pkey, color, content, ']', button);
+  pkey = sel.value;
+  console.log(pkey);
+  participants[pkey].stop = parent;
+  populate_end_p('');
+
+})
+
+$('#start-p-select').change(function(event) {
+  $('#end-p-select')[0].innerHTML = 0;
+  sel = event.target.selectedOptions[0];
+  parent = $('#edit')[0].attributes['parent-id'].value;
+  button = $('[data-id='+parent+']')[0];
+  ckey  = sel.attributes['data-ckey'].value;
+  color  = sel.attributes['data-color'].value;
+  pid  = sel.value;
+  content = sel.innerHTML;
+  c_ID = 'cpart_'+ckey+'_'+pid+'_'+parent;
+  c_IDS = 'cpart_'+ckey+'_'+pid+'_'+parent+'_'+s;
+  if ($('#'+c_IDS).length > 0) {
+    cx = constructions[cid];
+    cxinit = $('[data-id='+cx.start+']')[0].innerHTML;
+      if (cx.stop != null){
+        cxstop = $('[data-id='+cx.stop+']')[0].innerHTML;
+      } else {
+        cxstop = '-';
+  }
+    alert("You already started a " + content + " Participant for " + constructions[cid].name + " Construction @ " + button.innerHTML + " which starts From " + cxinit + " To " + cxstop);
+  }
+  else {
+    participants[c_ID] = {construction : ckey, 
+                        color : color,                         
+                        id : pid, 
+                        start : parent,
+                        stop : null,
+                        name : content,
+                        source_word : button.innerHTML}
+    c = create_participant_marker(ckey, pid, c_ID, color, content, '[', button);
+    populate_end_p('');
+  } 
+ 
+})
+
+$('#start-p-select-c').change(function (event){
+  sel = event.target.selectedOptions[0].value;
+  conid = ckey.split('_')[0];
+  $('#start-p-select')[0].innerHTML = "<option value='None'>--Select--</option>";
+
+   ajax('/app/cp/'+conid, function(result) {
+    result = $.parseJSON(result);
+    for (var i = 0; i < result.length; i++) {
+      $('#start-p-select').append("<option value='"+result[i].pk+"' data-color='"+result[i].fields['color']+"' data-ckey='"+ckey+"'>"+result[i].fields['name']+"</option>");
+    }        
+  });
+  populate_end_p('');
+})
+
+show_p_block = function(index) {
+  b = isBetween(index);
+  if (b.length > 0) {    
+    $('#start-p')[0].style.display = 'table-row';  
+    $('#start-p-select-c')[0].innerHTML = "<option value='None'>--Select--</option>";
+    $('#start-p-select')[0].innerHTML = "<option value='None'>--Select--</option>";
+    for(var btIndex in b) {
+      ckey = b[btIndex];
+      word_id = ckey.split('_')[1];
+      word = $('[data-id='+word_id+']')[0].innerHTML;
+      construction = constructions[ckey];
+      
+      $('#start-p-select-c').append("<option value='"+ckey+"' data-color='"+construction.color+"'>"+construction.name+'_'+word+"</option>");
+
+    }
+  } else {
+    $('#start-p')[0].style.display = 'none';  
+  }
+
+}
+
+$('.wordbutton').click(function(){
+  $('#edit-markers')[0].style.display = 'none';
+  $('#edit-pmarkers')[0].style.display = 'none';
+  $('#end-p-select')[0].innerHTML = 0;
+  edit = $('#edit')[0];
+  edit.style.display = "block";
+  button = $(this)[0];
+  index = button.attributes['data-id'].value;
+  $('#edit')[0].setAttribute('parent-id', index);
+  $('#edit-c-word')[0].innerHTML = (parseInt($(this)[0].attributes['data-id'].value) + 1) + ' ' + $(this)[0].innerHTML;
+
+  $('#edit-c-sel')[0].innerHTML = "<option value='None'>--Select--</option>";
+  ajax('/app/cc', function(result) {
+    result = $.parseJSON(result);
+    for (var i = 0; i < result.length; i++) {
+      $('#edit-c-sel').append("<option value='"+result[i].pk+"' data-color='"+result[i].fields['color']+"' data-source='"+index+"'>"+result[i].fields['name']+"</option>");
+    }        
+  });
+  show_p_block(index);
+
+})
+load_existing();
+/*$(function () {
+  $('[data-toggle="popover"]').popover({
+    html : true,        
+    content : function () {
+      new_popover = $('#popover_content').clone();
+
+      new_popover.prop('id', "popover_"+$(this)[0].attributes['data-id'].value);
+
+      return new_popover[0].outerHTML;
+    }
+    
+  });
+});
+*/  
+
+
 
 {% endblock %}

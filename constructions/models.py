@@ -28,10 +28,10 @@ class Sentence(models.Model):
 	treebank_form = models.TextField(null = True)
 
 	def __str__(self):
-		return self.plain_form
+		return self.__unicode__()
 
 	def __unicode__(self):
-		return self.plain_form.encode('utf-8')
+		return unicode(self.plain_form)
 
 
 	def get_absolute_url(self):
@@ -43,9 +43,16 @@ class ConstructionParticipant(models.Model):
 	span_start = models.IntegerField()
 	span_end = models.IntegerField()
 
+
+	def __unicode__(self):
+		return unicode(self.type.name)
+
 class Construction(models.Model):
 	sentence = models.ForeignKey(Sentence)
 	construction = models.ForeignKey(ConstructionCategory)
 	span_start = models.IntegerField()
 	span_end = models.IntegerField()
 	participants = models.ManyToManyField(ConstructionParticipant)
+
+	def __unicode__(self):
+		return unicode(self.construction.name)

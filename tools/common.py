@@ -27,7 +27,9 @@ class MorphStructure(object):
     def process(self):
         """ Processes The Feature Structure Into a Dict """
         #print self.fs_string
-        t = self.fs_string.strip("<>").split(" ")
+        
+        t = self.fs_string.strip('\r\n').strip("<>").split(" ")
+        
         self.fs = {"af" : ["NA"]} # This is a patch ! Investigate
         for ts in t:
             if '=' in ts:

@@ -10,8 +10,17 @@
         <!-- <link type="text/css" rel="stylesheet" href="{% static 'materialize/bin/materialize.css' %}"  media="screen,projection"/> -->
 
 	    {% bootstrap_css %}
-		{% bootstrap_javascript %}
+		{% bootstrap_javascript jquery=1 %}
 		{% endblock %}
+
+
+		<script type="text/javascript">
+
+		ajax = function(url, success) {
+			$.ajax({url: url, success: success});
+		}
+
+		</script>
     
   </head>
 
@@ -42,12 +51,18 @@
 </nav>
 
 
-    <div class="container">
+    <div class="container" style="width:90%">
       <div class="row">
 
 		{% block content %}
 		{% endblock %}
 	  </div>
 	</div>
+	<script type="text/javascript">
+	{% block endjs %}
+
+	{% endblock %}
+	</script>
+
 </body>
 

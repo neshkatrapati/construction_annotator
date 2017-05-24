@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     'colorfield',
     'materialize',
     'mathfilters',
+    'nested_admin',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',

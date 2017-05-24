@@ -21,4 +21,7 @@ from django.conf import settings
 urlpatterns = [
     url(r'^app/', include("constructions.urls")),
     url(r'^admin/', admin.site.urls, name='admin'),
+    url(r'^select2/', include('django_select2.urls')),
+    url(r'^_nested_admin/', include('nested_admin.urls')),
+
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
