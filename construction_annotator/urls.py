@@ -24,7 +24,7 @@ urlpatterns = [
     url(r'^admin/', admin.site.urls, name='admin'),
     url(r'^select2/', include('django_select2.urls')),
     url(r'^_nested_admin/', include('nested_admin.urls')),
-    url(r'/about', TemplateView.as_view(template_name = 'constructions/about.html')),
-    url(r'', TemplateView.as_view(template_name = 'constructions/about.html')),
+    url(r'about/$', TemplateView.as_view(template_name = 'constructions/about.html')),
+    url(r'^$', TemplateView.as_view(template_name = 'constructions/home.html')),
 
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

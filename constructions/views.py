@@ -217,7 +217,7 @@ def add_construction(request):
 				ckey = participant['construction']
 				ctype = ConstructionCategory.objects.get(pk=int(ckey.split('_')[0]))
 				cstart = ckey.split('_')[1]
-				construction = Construction.objects.get(construction = ctype, 
+				construction = Construction.objects.get(sentence = sentence, construction = ctype, 
 					span_start = cstart)
 			
 			partobj.sentence = sentence

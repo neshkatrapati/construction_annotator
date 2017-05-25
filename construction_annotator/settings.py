@@ -25,7 +25,7 @@ SECRET_KEY = '$=%35adc_y_sl@6d(i2!zul9vkxeb3tn1*zothi!y_8zifk-gq'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['0.0.0.0', '10.2.6.159']
 
 
 # Application definition
@@ -35,7 +35,6 @@ INSTALLED_APPS = [
     'django_select2',
     'bootstrap3',
     'colorfield',
-    'materialize',
     'mathfilters',
     'nested_admin',
     'django.contrib.admin',
