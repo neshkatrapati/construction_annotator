@@ -13,6 +13,16 @@ class ConstructionParticipantType(models.Model):
 	def __str__(self):
 		return self.name
 
+
+	def occurs_with(self):
+		s = ConstructionParticipant.objects.filter(type = self).values('sentence')				
+		cs = ConstructionParticipant.objects.filter(sentence__in = s).exclude(type = self).values('type').annotate(itemcount=models.Count('id')).order_by('-itemcount')[:10]
+		c_ids = [c['type'] for c in cs]		
+		cons = ConstructionParticipantType.objects.filter(pk__in = c_ids)		
+		
+		return cons
+
+
 	def get_absolute_url(self):
 		return '/app/cxp/'+str(self.pk)
 
@@ -26,6 +36,18 @@ class ConstructionCategory(models.Model):
 
 	def __str__(self):
 		return self.name
+
+	def get_count(self):
+		return Construction.objects.filter(construction = self).count()
+	
+
+	def occurs_with(self):
+		s = Construction.objects.filter(construction = self).values('sentence')				
+		cs = Construction.objects.filter(sentence__in = s).exclude(construction = self).values('construction').annotate(itemcount=models.Count('id')).order_by('-itemcount')[:10]
+		c_ids = [c['construction'] for c in cs]		
+		cons = ConstructionCategory.objects.filter(pk__in = c_ids)		
+		
+		return cons
 
 	def get_absolute_url(self):
 		return '/app/cx/'+str(self.pk)

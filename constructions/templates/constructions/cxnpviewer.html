@@ -5,13 +5,13 @@
     
     <div class="col-md-2">
       <div class="panel panel-primary" >
-      <div class="panel-heading" style='padding:5px 10px'> Constructions </div>
+      <div class="panel-heading" style='padding:5px 10px'> Construction Participants </div>
   
       <table class="table table-condensed" style="text-align:center">
-        {% for cx in constructions %}
-          {% if construction.id == cx.id %}
+        {% for cx in participants %}
+          {% if participant.id == cx.id %}
           <tr><td><a href="{{cx.get_absolute_url}}"><b>{{cx.name}}</b></a></td></tr>
-          {% else %}
+          {% else %} 
           <tr><td><a href="{{cx.get_absolute_url}}">{{cx.name}}</a></td></tr>
           {% endif %}
         {% endfor %}
@@ -21,32 +21,33 @@
     </div>
     <div class="col-md-10">
       <div class="panel panel-primary" >
-      <div class="panel-heading" style='padding:5px 10px;'> Construction Viewer</div>
+      <div class="panel-heading" style='padding:5px 10px;'> Construction Participant Viewer</div>
       
       <div class="panel-body">
         <table class="table" class="text-align:center">
         <tr> 
           <td style='background-color:{{construction.color}};font-size:100%;padding:0.5%'>
-            <span> {{construction.name }} : </span> 
+            <span> {{participant.name }} : </span> 
           </td>
           <td colspan="5">
-            {{construction.description}}
+            {{participant.description}}
           </td>
         </tr>
         </table>
         <hr>
-        <h4> Participants : </h4> <br>
+        <h4> Constructions <b>{{participant.name}}</b> Occurs in : </h4> <br>
         <table class="table">
-        {% for participant in construction.participants.all %}
+        {% for construction in participant.constructioncategory_set.all %}
           <tr>
-            <td style='background-color:{{participant.color}};font-size:100%;padding:0.5%'> <span > <a href='{{participant.get_absolute_url}}'> {{ participant.name }} </a></span> </td>
-            <td> {{participant.description}} </td>
+            <td style='background-color:{{construction.color}};font-size:100%;padding:0.5%'> <span > <a href='{{construction.get_absolute_url}}'> {{ construction.name }} </a></span> </td>
+            <td> {{construction.description}} </td>
           </tr>
         {% endfor %}
         </table>
+
         <hr>
          <h4> Frequently Occurs With : </h4> <br>
-         {% for c2 in construction.occurs_with %}
+         {% for c2 in participant.occurs_with %}
             
             <span style='background-color:{{c2.color}};font-size:100%;padding:1%'> <a href='{{c2.get_absolute_url}}'> {{ c2.name }} </a></span>
             
@@ -54,6 +55,8 @@
           
         {% endfor %}
         
+
+
       </div>
   
     </div>
@@ -68,28 +71,34 @@
 
         <tr> <td><a href='{{cinstance.sentence.get_absolute_url}}'> {{cinstance.sentence.id}}</a></td> <td colspan="2"> 
          {% for index, word in cinstance.sentence.as_list %} 
-          {% if index == cinstance.span_start %}
-            <span style='color:{{construction.color}}'>{<sub>{{construction.name}}</sub></span>                  
-          {% endif %}
-
-          {% for part in cinstance.participants.all %}
+          
+          {% for part in cinstance.construction_set.all %}
             {% if index == part.span_start %}
-              <span style='color:{{part.type.color}}'>[<sub>{{part.type.name}}</sub></span>                
+              <span style='color:{{part.construction.color}}'>{<sub>{{part.construction.name}}</sub></span>                
             {% endif %}
           {% endfor %}
         
-        <span>{{word}}</span>
-          
-        {% for part in cinstance.participants.all %}
-            {% if index == part.span_end %}
-              <span style='color:{{part.type.color}}'><sub>{{part.type.name}}</sub>]</span>                  
-            {% endif %}
-          {% endfor %}
+
+          {% if index == cinstance.span_start %}
+            <span style='color:{{participant.color}}'>[<sub>{{participant.name}}</sub></span>                  
+          {% endif %}
 
           
-          {% if index == cinstance.span_end %}
-           <span style='color:{{construction.color}}'><sub>{{construction.name}}</sub>}</span>                      
+        <span>{{word}}</span>
+        
+  {% if index == cinstance.span_end %}
+           <span style='color:{{participant.color}}'><sub>{{participant.name}}</sub>]</span>                      
           {% endif %}
+
+        {% for part in cinstance.construction_set.all %}
+            {% if index == part.span_end %}
+              <span style='color:{{part.construction.color}}'><sub>{{part.construction.name}}</sub>}</span>                
+            {% endif %}
+          {% endfor %}
+        
+
+          
+        
          {% endfor %}
          </td> </tr>
         {% endfor %}

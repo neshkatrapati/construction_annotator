@@ -6,6 +6,7 @@
       <tr>
         <th>Construction</th>
         <th>Participants</th>      
+        <th>Count</th>
       </tr>
     </thead>
     <tbody>
@@ -17,6 +18,7 @@
             <span style='background-color:{{participant.color}};font-size:100%;padding:1%;margin:1%'> <a href='{{participant.get_absolute_url}}'> {{ participant.name }} </a></span>
           {% endfor %}
           </td>
+          <td>{{construction.get_count}}</td>
         </tr>
       {% endfor %}
     </tbody>

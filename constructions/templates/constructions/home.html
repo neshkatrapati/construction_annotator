@@ -1,0 +1,12 @@
+{% extends 'constructions/base.html' %}
+{% load static %}
+{% block content %}
+
+  <div class="jumbotron">
+  <h1 style="font-size:55px"> <img src="{% static 'constructions/curly-brackets.png' %}" /> Welcome To Construction Annotator</h1>
+  <p> Click on "Sentence Index" to begin annotating </p>
+  <p> To see existing constructions, Click on "Construction Viewer" </p>
+  <p><a class="btn btn-primary btn-lg" href="/about" role="button">Learn more</a></p>
+</div>
+
+{% endblock %}

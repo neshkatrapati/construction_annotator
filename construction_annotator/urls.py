@@ -17,11 +17,14 @@ from django.conf.urls import url, include
 from django.contrib import admin
 from django.conf.urls.static import static
 from django.conf import settings
-
+from django.views.generic import TemplateView
 urlpatterns = [
+    
     url(r'^app/', include("constructions.urls")),
     url(r'^admin/', admin.site.urls, name='admin'),
     url(r'^select2/', include('django_select2.urls')),
     url(r'^_nested_admin/', include('nested_admin.urls')),
+    url(r'/about', TemplateView.as_view(template_name = 'constructions/about.html')),
+    url(r'', TemplateView.as_view(template_name = 'constructions/about.html')),
 
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

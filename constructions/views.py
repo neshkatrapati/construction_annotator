@@ -13,8 +13,8 @@ from .helpers import split_sentence, get_graph
 from .forms import * 
 
 
-# Search Sentences
-# CxnViewer
+# Search Sentences, Constructions & Participants
+# For C&P implements frequently occurs with. 
 # Construction Influencers !
 
 class JSONResponseMixin(object):
@@ -115,6 +115,27 @@ def annotate(request, id):
 		 'image':png_path})
 
 
+
+
+def construction_participant_view(request, id):
+	participant = ConstructionParticipantType.objects.get(pk = id)
+	participants = ConstructionParticipantType.objects.all()
+	allcs = ConstructionParticipant.objects.filter(type = participant)
+	
+	page = request.GET.get('page', 1)
+	paginator = Paginator(allcs, 20)
+	try:
+            participant_instances = paginator.page(page)
+	except PageNotAnInteger:
+            participant_instances = paginator.page(1)
+        except EmptyPage:
+            participant_instances = paginator.page(paginator.num_pages)
+
+        return render(request, 'constructions/cxnpviewer.html', {
+        'participant' : participant,
+	'participants' : participants,
+	'cinstances' : participant_instances,
+	'lead_color' : ''})
 
 
 def construction_view(request, id):
