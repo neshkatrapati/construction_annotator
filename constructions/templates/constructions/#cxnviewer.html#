@@ -1,0 +1,105 @@
+{% extends 'constructions/base.html' %}
+
+{% block content %}
+  <div class="row">
+    
+    <div class="col-md-2">
+      <div class="panel panel-primary" >
+	<div class="panel-heading" style='padding:5px 10px'> Constructions </div>
+	<ul style='list-style:none;min-width:100%'>
+        {% for cx in constructions %}
+          {% if construction.id == cx.id %}
+          <li style='padding:2%;'> <a href="{{cx.get_absolute_url}}" style='word-wrap:break-word;'><b>{{cx.name}}</b></a> </li>
+          {% else %}
+          <li style='padding:2%'> <a href="{{cx.get_absolute_url}}" style='word-wrap:break-word; '>{{cx.name}}</a> </li>
+          {% endif %}
+        {% endfor %}
+	</ul>  
+    </div>
+    </div>
+    <div class="col-md-10">
+      <div class="panel panel-primary" >
+      <div class="panel-heading" style='padding:5px 10px;'> Construction Viewer</div>
+      
+      <div class="panel-body">
+        <table class="table" class="text-align:center">
+        <tr> 
+          <td style='background-color:{{construction.color}};font-size:100%;padding:0.5%'>
+            <span> {{construction.name }} : </span> 
+          </td>
+          <td colspan="5">
+            {{construction.description}}
+          </td>
+        </tr>
+        </table>
+        <hr>
+        <h4> Participants : </h4> <br>
+        <table class="table">
+        {% for participant in construction.participants.all %}
+          <tr>
+            <td style='background-color:{{participant.color}};font-size:100%;padding:0.5%'> <span > <a href='{{participant.get_absolute_url}}'> {{ participant.name }} </a></span> </td>
+            <td> {{participant.description}} </td>
+          </tr>
+        {% endfor %}
+        </table>
+        <hr>
+         <h4> Frequently Occurs With : </h4> <br>
+         {% for c2 in construction.occurs_with %}
+            
+            <span style='background-color:{{c2.color}};font-size:100%;padding:1%'> <a href='{{c2.get_absolute_url}}'> {{ c2.name }} </a></span>
+            
+            
+          
+        {% endfor %}
+        
+      </div>
+  
+    </div>
+
+  </div>
+  </div>
+    <div class="panel panel-primary">
+      <div class="panel-heading" style='padding:5px 10px'> Sentences </div>
+      <div class="panel_body">
+        <table class="table-condensed table-bordered">
+        {% for cinstance in cinstances %}
+
+        <tr> <td><a href='{{cinstance.sentence.get_absolute_url}}'> {{cinstance.sentence.id}}</a></td> <td colspan="2"> 
+         {% for index, word in cinstance.sentence.as_list %} 
+          {% if index == cinstance.span_start %}
+            <span style='color:{{construction.color}}'>{<sub>{{construction.name}}</sub></span>                  
+          {% endif %}
+
+          {% for part in cinstance.participants.all %}
+            {% if index == part.span_start %}
+              <span style='color:{{part.type.color}}'>[<sub>{{part.type.name}}</sub></span>                
+            {% endif %}
+          {% endfor %}
+        
+        <span>{{word}}</span>
+          
+        {% for part in cinstance.participants.all %}
+            {% if index == part.span_end %}
+              <span style='color:{{part.type.color}}'><sub>{{part.type.name}}</sub>]</span>                  
+            {% endif %}
+          {% endfor %}
+
+          
+          {% if index == cinstance.span_end %}
+           <span style='color:{{construction.color}}'><sub>{{construction.name}}</sub>}</span>                      
+          {% endif %}
+         {% endfor %}
+         </td> </tr>
+        {% endfor %}
+        </table>
+      </div>
+        
+    </div>
+
+  
+  {% if is_paginated %}
+    {% include 'constructions/paginator.html' %}
+  {% endif %}
+  
+
+{% endblock %}

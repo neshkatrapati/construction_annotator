@@ -4,6 +4,7 @@ from colorfield.fields import ColorField
 from django.db import models
 from django.urls import reverse
 from .helpers import *
+from django.contrib.auth.models import User
 # Create your models here.
 
 class ConstructionParticipantType(models.Model):
@@ -52,7 +53,39 @@ class ConstructionCategory(models.Model):
 	def get_absolute_url(self):
 		return '/app/cx/'+str(self.pk)
 
+
+
+class CorpusFile(models.Model):
+	name = models.CharField(max_length=2000)
+	created_by = models.ForeignKey(User, default=1)
+	uploaded_on = models.DateTimeField(auto_now_add=True)
+	
+	def __str__(self):
+		return self.__unicode__()
+	
+	def __unicode__(self):
+		return unicode(self.name)
+	
+	def get_absolute_url(self):
+		return '/app/cf/' + str(self.id)
+
+	def get_next_url(self):
+		next_obj = CorpusFile.objects.filter(id = self.id + 1).first()
+		if next_obj:
+			return next_obj.get_absolute_url()
+
+		return '/app/'
+
+	def get_prev_url(self):
+		next_obj = CorpusFile.objects.filter(id = self.id - 1).first()
+		if next_obj:
+			return next_obj.get_absolute_url()
+
+		return '/app/'
+	
+
 class Sentence(models.Model):
+	corpus_file = models.ForeignKey(CorpusFile)
 	treebank_id = models.IntegerField()
 	plain_form = models.TextField(null=True)
 	treebank_form = models.TextField(null = True)

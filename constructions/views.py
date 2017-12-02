@@ -11,7 +11,7 @@ import json
 from .models import *
 from .helpers import split_sentence, get_graph
 from .forms import * 
-
+from django.shortcuts import get_object_or_404
 
 # Search Sentences, Constructions & Participants
 # For C&P implements frequently occurs with. 
@@ -88,6 +88,38 @@ class ConstructionParticipantCategoryView(JSONResponseMixin, ListView):
 
 	def render_to_response(self, context, **response_kwargs):
 		return self.render_to_json_response(context, **response_kwargs)
+
+
+
+
+class CorpusFilesView(ListView):
+    model = CorpusFile
+    template_name = 'constructions/cfindex.html'
+    context_object_name = 'corpus_files'
+    paginate_by = 30
+    queryset = CorpusFile.objects.all()
+
+class CorpusFileView(ListView):
+    model = Sentence
+    template_name = 'constructions/index.html'  # Default: <app_label>/<model_name>_list.html
+    context_object_name = 'sentences'  # Default: object_list
+    paginate_by = 40
+    
+
+    def get_context_data(self, **kwargs):
+        context = super(CorpusFileView, self).get_context_data(**kwargs)	
+	corpus_file = get_object_or_404(CorpusFile, id=self.kwargs['id'])
+	context['corpus_file'] = corpus_file
+	return context
+ 
+    def get_queryset(self):
+    	self.corpus_file = get_object_or_404(CorpusFile, id=self.kwargs['id'])
+        sentences = Sentence.objects.filter(corpus_file=self.corpus_file).order_by('treebank_id')
+	sentences.corpus_file = self.corpus_file
+	print sentences.corpus_file
+	return sentences
+
+
 
 class SentenceView(ListView):
     model = Sentence

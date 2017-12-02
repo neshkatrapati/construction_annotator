@@ -1,0 +1,27 @@
+{% extends 'constructions/base.html' %}
+
+{% block content %}
+  <table class="table table-bordered table-condensed table-hover">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Corpus File Name</th>      
+      </tr>
+    </thead>
+    <tbody>
+      {% for corpus_file in corpus_files %}
+        <tr>
+          <td>{{ corpus_file.id }}</td>
+          <td><a href='{{corpus_file.get_absolute_url}}'> {{ corpus_file.name }} </a></td>
+          
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  {% if is_paginated %}
+    {% include 'constructions/paginator.html' %}
+  {% endif %}
+  
+
+{% endblock %}

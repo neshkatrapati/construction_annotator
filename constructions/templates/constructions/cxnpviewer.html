@@ -7,15 +7,15 @@
       <div class="panel panel-primary" >
       <div class="panel-heading" style='padding:5px 10px'> Construction Participants </div>
   
-      <table class="table table-condensed" style="text-align:center">
+      <ul style="list-style:none">
         {% for cx in participants %}
           {% if participant.id == cx.id %}
-          <tr><td><a href="{{cx.get_absolute_url}}"><b>{{cx.name}}</b></a></td></tr>
+          <li style='padding:2%;'><a href="{{cx.get_absolute_url}}"><b>{{cx.name}}</b></a></li>
           {% else %} 
-          <tr><td><a href="{{cx.get_absolute_url}}">{{cx.name}}</a></td></tr>
+          <li style='padding:2%;'><a href="{{cx.get_absolute_url}}">{{cx.name}}</a></td></li>
           {% endif %}
         {% endfor %}
-      </table>
+      </ul>
     
       </div>
     </div>

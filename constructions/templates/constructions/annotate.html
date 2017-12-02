@@ -13,7 +13,8 @@
     <div class="panel panel-primary" >
       <div class="panel-heading" style='padding:5px 10px'>
        <div class='row'>
-        <div class='col-md-10'> Annotation View : Sentence ID - {{sentence.treebank_id}} </div>
+        <div class='col-md-8'> Annotation View : Sentence ID - {{sentence.treebank_id}} </div>
+        <div class='col-md-2'> <button type='button' id='togglepos' class='btn btn-info' style='float:right'> Toggle Pos </button> </div>
         <div class='col-md-2'> <button type='button' id='sbchanges' class='btn btn-info' style='float:right'> Submit Changes </button> </div>
         </div>
       </div>
@@ -101,7 +102,7 @@
 
 
           {% for index, word in words %}
-            <button type='button' class="btn btn-default wordbutton" style="margin-top:1%"  data-id={{index}} data-sid={{sentence.id}}> {{ word }} </button>
+            <button type='button' class="btn btn-default wordbutton" data-full="{{word}}" style="margin-top:1%"  data-id={{index}} data-sid={{sentence.id}}> {{ word }} </button>
           {% endfor %}
         </div>
     </div>
@@ -150,7 +151,6 @@
 
   $('#sbchanges').click(function() {
     if (confirm("Are you sure ? ")) {
-      if (Object.keys(constructions).length > 0) {
         if (areFilled()) {
 
           if(arePartsFilled()) {
@@ -165,7 +165,7 @@
                 sentence : '{{sentence.id}}',
               },
               function(data, status){
-                alert("Data: " + data + "\nStatus: " + status);
+                alert("Data: " + data + "\nStatus: " + status);button.innerHTML
             });
 
           } else {
@@ -176,10 +176,8 @@
         } else {
           alert('Not all Constructions are complete. Be sure to end constructions if you have started them');
         }
-      } else {
-        alert('There are no constructions defined.');
-      }
-    }
+      } 
+    
   })
 
 
@@ -222,12 +220,12 @@
         participants[pky]['source_word']  = button.innerHTML;
         participants[pky]['model_id']  = "{{participant.id}}";
         c_ID = cky+'_'+participants[pky].id+'_'+participants[pky].start;
-        c = create_participant_marker(cky, participants[pky].id, c_ID, participants[pky].color, participants[pky].name, '[', button);
+        c = create_participant_marker('cpart_'+c_ID, cky, participants[pky].id, c_ID, participants[pky].color, participants[pky].name, '[', button);
         //populate_end_p('');
         button = $('[data-id='+participants[pky]['stop']+']')[0];
         sw  = button.innerHTML;        
-        c_ID = cky+'_'+participants[pky].id+'_'+participants[pky].stop;
-        c = create_participant_marker(cky, participants[pky].id, c_ID, participants[pky].color, participants[pky].name, ']', button);
+        c_ID = cky+'_'+participants[pky].id+'_'+participants[pky].start
+        c = create_participant_marker('cpart_'+c_ID, cky, participants[pky].id, c_ID, participants[pky].color, participants[pky].name, ']', button);
         populate_end_p('');
    
 
@@ -251,9 +249,22 @@
    
  }
 
+  function togglePos() {
+	wordbuttons = document.getElementsByClassName('wordbutton');
+	for(var i =0; i < wordbuttons.length; i++){
+		var wordbutton = wordbuttons[i];
+		var wbtext = wordbutton.attributes["data-full"].textContent;
+		if (wordbutton.innerHTML.trim() == wbtext){
+			x = wordbutton.innerHTML.split('/')
+			x = x.slice(0, x.length-1).join('/')
+			wordbutton.innerHTML = x;
+		} else {
+			wordbutton.innerHTML = wbtext;
+		}
+	}
+  }
 
-
-
+ $('#togglepos').click(function(){togglePos();});
 
   function insertAfter(newElement,targetElement) {
     // target is what you want it to go after. Look for this elements parent.
@@ -413,12 +424,15 @@
     
 
   removeParticipants = function(ckey) {
-    for(var pkey in participants) {
-      if (participants[pkey].construction == ckey) {
+  for(var pkey in participants) {
+  
+  if (participants[pkey].construction == ckey) {
+          console.log(participants[pkey]);
           pid = participants[pkey].id;
           parent = participants[pkey].start;
           c_ID = 'cpart_'+ckey+'_'+pid+'_'+parent;
-          startB = '#'+c_ID+'_O';
+  startB = '#'+c_ID+'_O';
+          console.log(startB);
           $(startB).remove();
           if (participants[pkey].stop != null) {
             endB = '#'+c_ID+'_E';
@@ -546,12 +560,12 @@ on_marker_click_p = function(result){
 
 
 
-create_participant_marker = function(cid, pid, pkey, color,content,marker,button) {
+create_participant_marker = function(setid, cid, pid, pkey, color,content,marker,button) {
     c = document.createElement('button');    
     bid = button.attributes['data-id'].value;
     if (marker == '[') { s = 'O';}
     else if (marker == ']') { s = 'E';}
-    c_ID = 'cpart_'+cid+'_'+pid+'_'+bid+'_'+s;
+    c_ID = setid + '_'+s;
     console.log(c_ID);
     //pkey = 'cpart_'+cid+'_'+pid+'_'+parent;
     c.setAttribute('id',c_ID);
@@ -581,10 +595,10 @@ $('#end-p-select').change(function(event) {
   ckey  = participants[pkey].construction;
   color  = sel.attributes['data-color'].value;
   content = participants[pkey].name;
-  c_ID = 'cpart_'+ckey+'_'+pid+'_'+parent;
-
-
-  c = create_participant_marker(ckey, pid, pkey, color, content, ']', button);
+//  c_ID = 'cpart_'+ckey+'_'+pid+'_'+parent;
+  c_ID = 'cpart_'+ckey+'_'+pid+'_'+participants[pkey].start;						  
+                				    
+  c = create_participant_marker(c_ID, ckey, pid, pkey, color, content, ']', button);
   pkey = sel.value;
   console.log(pkey);
   participants[pkey].stop = parent;
@@ -603,7 +617,7 @@ $('#start-p-select').change(function(event) {
   content = sel.innerHTML;
   c_ID = 'cpart_'+ckey+'_'+pid+'_'+parent;
   cid  = ckey+'_'+pid+'_'+parent;
-  c_IDS = 'cpart_'+ckey+'_'+pid+'_'+parent+'_'+s;
+  c_IDS = 'cpart_'+ckey+'_'+pid+'_'+parent+'_O';
   if ($('#'+c_IDS).length > 0) {
     cx = constructions[cid];
     cxinit = $('[data-id='+cx.start+']')[0].innerHTML;
@@ -622,7 +636,7 @@ $('#start-p-select').change(function(event) {
                         stop : null,
                         name : content,
                         source_word : button.innerHTML}
-    c = create_participant_marker(ckey, pid, c_ID, color, content, '[', button);
+    c = create_participant_marker(c_ID, ckey, pid, c_ID, color, content, '[', button);
     populate_end_p('');
   } 
  
