@@ -23,6 +23,7 @@
 
 
           <div id='edit' style='display:none'>
+	    <a href="#" onclick="window.open('/admin/constructions/constructioncategory/add/?_popup=1','newwindow', 'width=300,height=250');return false;" target="_blank">Add new Construction</a>
             <form class='form-inline'> 
               <table class='table table-bordered table-condensed'>
                 <tr><td colspan="3">Editing </td> <td colspan="3"> <span id='edit-c-word'></span></td></tr>
@@ -38,7 +39,7 @@
                     
                   </select></td>
                 </tr>
-
+		
                <tr style="display:none; text-align:center" id='start-p'>
                   <td>Select Construction</td>
                   <td ><select id='start-p-select-c' class='btn btn-default' style="width:100%">
@@ -107,7 +108,7 @@
         </div>
     </div>
   </div>  
-  
+  {% if has_full_form %}
   <div class="row">
     <div class="col-md-6">
       <div class="panel panel-primary">
@@ -120,11 +121,12 @@
     <div class="col-md-6">
       <div class="panel panel-primary">
       <div class="panel-heading"> Dependency Graph </div>
-        <div class="panel-body">
+        <div class="panel-body">	
           <img src='{% static "constructions/test.png" %}' style="max-width:100%" />
         </div>
     </div>
     </div>
+   {% endif %}
   </div>  
   {% csrf_token %}  
 {% endblock %}

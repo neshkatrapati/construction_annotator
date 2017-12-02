@@ -97,7 +97,13 @@ class CorpusFilesView(ListView):
     template_name = 'constructions/cfindex.html'
     context_object_name = 'corpus_files'
     paginate_by = 30
-    queryset = CorpusFile.objects.all()
+    #queryset = CorpusFile.objects.all()
+
+    def get_queryset(self):
+	if 'filter' in self.request.GET:
+		return CorpusFile.objects.filter(created_by=self.request.user)
+	return CorpusFile.objects.all()
+    
 
 class CorpusFileView(ListView):
     model = Sentence
@@ -133,7 +139,11 @@ def annotate(request, id):
 	words = split_sentence(sentence)
 	concats = ConstructionCategory.objects.all()
 	conform = ConstructionCategorySearchForm()
-	png_path = get_graph(sentence.treebank_form)
+	png_path = None
+	has_full_form = False
+	if len(sentence.treebank_form) > 0:
+		png_path = get_graph(sentence.treebank_form)
+		has_full_form=True
 	constructions = Construction.objects.filter(sentence = id)
 	participants = ConstructionParticipant.objects.filter(pk__in = constructions.values('participants'))
 	return render(request, 
@@ -144,6 +154,7 @@ def annotate(request, id):
 		 'participants' : participants,
 		 'concats' : concats,
 		 'conform' : conform,
+		 'has_full_form' : has_full_form,
 		 'image':png_path})
 
 

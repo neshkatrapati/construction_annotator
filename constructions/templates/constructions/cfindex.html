@@ -1,6 +1,17 @@
 {% extends 'constructions/base.html' %}
 
 {% block content %}
+<div class='col-md-2'>
+<ul class="nav flex-column">
+  <li class="nav-item">
+    <a class="nav-link" href="/app/">All</a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="?filter=True">Uploaded by you</a>
+  </li>
+</ul>
+</div>
+<div class='col-md-10'>
   <table class="table table-bordered table-condensed table-hover">
     <thead>
       <tr>
@@ -22,6 +33,6 @@
   {% if is_paginated %}
     {% include 'constructions/paginator.html' %}
   {% endif %}
-  
+</div>  
 
 {% endblock %}
